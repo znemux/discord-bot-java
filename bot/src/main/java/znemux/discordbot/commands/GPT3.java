@@ -8,7 +8,6 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import org.json.JSONException;
 import org.json.JSONObject;
-import znemux.discordbot.Main;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.utils.SplitUtil;
 import org.json.JSONArray;
@@ -19,19 +18,15 @@ import org.json.JSONArray;
  */
 public class GPT3 {
 
-    final OkHttpClient client;
-    static GPT3 gpt3 = new GPT3();
-    static String key = Main.getAIKey();
+    final static OkHttpClient client = new OkHttpClient();
+    static String key = null;
 
-    GPT3() {
-        this.client = new OkHttpClient();
+    public static void setKey(String key) {
+        GPT3.key = key;
     }
 
     public static void gpt() {
-        
-        if (event.isAcknowledged()) {
-            return; // Interaction already acknowledged, do nothing
-        }
+        if (event.isAcknowledged()) return;
         
         if (key == null) {
             event.reply("OpenAI key not provided with OPENAI_KEY environment variable").queue();
@@ -42,7 +37,7 @@ public class GPT3 {
         
         event.deferReply().queue();
         var request = event.getOption("message", OptionMapping::getAsString);
-        var response = gpt3.getResponse(request);
+        var response = getResponse(request);
         
         if (response.length() <= limit) {
             event.getHook().editOriginal(response).queue();
@@ -56,7 +51,7 @@ public class GPT3 {
         
     }
 
-    public String getResponse(String message) {
+    static String getResponse(String message) {
         try {
             var requestBody = new JSONObject()
                     .put("model", "gpt-3.5-turbo")

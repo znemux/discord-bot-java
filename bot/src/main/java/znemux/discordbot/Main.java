@@ -1,5 +1,7 @@
 package znemux.discordbot;
 
+import znemux.discordbot.commands.GPT3;
+
 /**
  *
  * @author znemux
@@ -7,8 +9,8 @@ package znemux.discordbot;
 public class Main {
     
     public static void main(String[] args) {
-        var token = getToken(args);
-        Bootstrap.initialize(token);
+        GPT3.setKey(getAIKey(args));
+        Bootstrap.initialize(getToken(args));
     }
     
     static String getToken(String[] args) {
@@ -23,7 +25,10 @@ public class Main {
         return null;
     }
     
-    public static String getAIKey() {
+    public static String getAIKey(String[] args) {
+        if (args.length > 1) {
+            return args[1];
+        }
         var env = System.getenv("OPENAI_KEY");
         if (env != null) {
             return env;
