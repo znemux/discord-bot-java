@@ -36,7 +36,8 @@ public class GPT3 {
         int limit = 1984;
         
         event.deferReply().queue();
-        var request = event.getOption("message", OptionMapping::getAsString);
+        var request = formatMessage(event.getOption("message", OptionMapping::getAsString));
+        // Test: System.out.println("GPT Request: "+request);
         var response = getResponse(request);
         
         if (response.length() <= limit) {
@@ -48,7 +49,17 @@ public class GPT3 {
         for (int i = 1; i < chunks.size(); i++) {
             event.reply(chunks.get(i)).queue();
         }
-        
+    }
+    
+    static String formatMessage(String message) {
+        var builder = new StringBuilder();
+        builder.append("<message")
+                .append(" id=").append(event.getMember().getId())
+                .append(" username=").append(event.getMember().getEffectiveName())
+                .append(" nickname=").append(event.getMember().getNickname())
+                .append(" body=").append(message.trim())
+                .append("/>");
+        return builder.toString();
     }
 
     static String getResponse(String message) {
@@ -66,14 +77,14 @@ public class GPT3 {
                     .build();
             var response = client.newCall(request).execute();
             var jsonResponse = response.body().string();
-            System.out.println("JSON Response: " + jsonResponse); // Log JSON response
+            // Test: System.out.println("JSON Response: " + jsonResponse); // Log JSON response
             var jsonObject = new JSONObject(jsonResponse);
             if (jsonObject.has("choices")) {
                 var choicesArray = jsonObject.getJSONArray("choices");
                 if (!choicesArray.isEmpty()) {
                     var messageObject = choicesArray.getJSONObject(0).optJSONObject("message");
                     if (messageObject != null && messageObject.has("content")) {
-                        System.out.println(messageObject.getString("content"));
+                        // Test: System.out.println(messageObject.getString("content"));
                         return messageObject.getString("content");
                     }
                 }
