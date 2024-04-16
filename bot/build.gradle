@@ -1,0 +1,39 @@
+plugins {
+    id "application"
+    id "com.github.johnrengelman.shadow" version "8.1.1"
+    id "java"
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation ("net.dv8tion:JDA:5.0.0-beta.22") {
+        exclude module: "opus-java"
+    }
+    implementation ("org.json:json:20240303")
+}
+
+java {
+    toolchain {
+        // languageVersion = JavaLanguageVersion.of(17)
+    }
+    sourceCompatibility = targetCompatibility = JavaVersion.VERSION_17
+}
+
+application {
+    mainClass = "znemux.discordbot.Main"
+}
+
+shadowJar {
+    manifest { attributes "Main-Class": application.mainClass }
+    archiveFileName.set(rootProject.name + ".jar")
+    minimize()
+    doLast { file(archiveFile).setExecutable(true, false) }
+}
+
+distTar.enabled = false
+distZip.enabled = false
+shadowDistTar.enabled = false
+shadowDistZip.enabled = false
